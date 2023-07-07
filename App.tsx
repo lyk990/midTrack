@@ -1,11 +1,12 @@
 import React from 'react';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {SafeAreaView, StatusBar, StyleSheet} from 'react-native';
 
 function App(): JSX.Element {
   return (
-    <SafeAreaView>
+    <SafeAreaProvider>
       <StatusBar barStyle={'dark-content'} backgroundColor={'white'} />
-    </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
