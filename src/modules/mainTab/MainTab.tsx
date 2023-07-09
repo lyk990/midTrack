@@ -67,6 +67,7 @@ export default () => {
                 navigation.navigate(route.name);
               }}>
               <Text
+                // eslint-disable-next-line react-native/no-inline-styles
                 style={{
                   fontSize: isFocused ? 18 : 16,
                   color: isFocused ? '#333' : '#999',
@@ -109,7 +110,7 @@ export default () => {
         //   activeTintColor: '#ff2442',
         //   inactiveTintColor: '#999',
         // }}
-        tabBar={props => <RedBookTabBar {...props} />}>
+        tabBar={(props: any) => <RedBookTabBar {...props} />}>
         <BottomTab.Screen
           name="Home"
           component={Home}
