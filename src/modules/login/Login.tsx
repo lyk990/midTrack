@@ -12,6 +12,7 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {formatPhone, replaceBlank} from '../../utils/StringUtil';
+import {get, post} from '../../utils/request';
 
 import icon_logo_main from '../../assets/icon_main_logo.png';
 import icon_unselected from '../../assets/icon_unselected.png';
@@ -35,6 +36,15 @@ export default () => {
 
   const [phone, setPhone] = useState<string>('');
   const [pwd, setPwd] = useState<string>('');
+
+  const canLogin = phone?.length === 13 && pwd?.length === 6 && check;
+
+  const onLoginPress = () => {
+    if (!canLogin || !check) return;
+    navigation.replace('MainTab');
+    const purePhone = replaceBlank(phone);
+    // TODO
+  };
 
   const renderQuickLogin = () => {
     const styles = StyleSheet.create({
@@ -285,7 +295,6 @@ export default () => {
         height: 28,
       },
     });
-    const canLogin = phone?.length === 13 && pwd?.length === 6;
 
     return (
       <View style={styles.root}>
@@ -342,12 +351,7 @@ export default () => {
         <TouchableOpacity
           activeOpacity={canLogin ? 0.7 : 1}
           style={canLogin ? styles.loginButton : styles.loginButtonDisable}
-          onPress={() => {
-            if (!canLogin) return;
-            // navigation.replace('HomeTab');
-            const purePhone = replaceBlank(phone);
-            // TODO
-          }}>
+          onPress={onLoginPress}>
           <Text style={styles.loginTxt}>登陆</Text>
         </TouchableOpacity>
 
