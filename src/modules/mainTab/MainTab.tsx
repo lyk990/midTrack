@@ -30,11 +30,7 @@ export default () => {
             console.log('选择图片失败');
             return;
           }
-          const {uri, width, height, fileName, fileSize, type} = assets[0];
-          console.log(`uri=${uri}, width=${width}, height=${height}`);
-          console.log(
-            `fileName=${fileName}, fileSize=${fileSize}, type=${type}`,
-          );
+          // const {uri, width, height, fileName, fileSize, type} = assets[0];
         },
       );
     };
@@ -67,7 +63,6 @@ export default () => {
                 navigation.navigate(route.name);
               }}>
               <Text
-                // eslint-disable-next-line react-native/no-inline-styles
                 style={{
                   fontSize: isFocused ? 18 : 16,
                   color: isFocused ? '#333' : '#999',
