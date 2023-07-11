@@ -12,7 +12,8 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {formatPhone, replaceBlank} from '../../utils/StringUtil';
-import {get, post} from '../../utils/request';
+import UserStore from '../../stores/UserStore';
+import Toast from '../../components/widget/Toast';
 
 import icon_logo_main from '../../assets/icon_main_logo.png';
 import icon_unselected from '../../assets/icon_unselected.png';
@@ -39,11 +40,19 @@ export default () => {
 
   const canLogin = phone?.length === 13 && pwd?.length === 6 && check;
 
-  const onLoginPress = () => {
-    if (!canLogin || !check) return;
-    navigation.replace('MainTab');
-    const purePhone = replaceBlank(phone);
-    // TODO
+  const onLoginPress = async () => {
+    if (!canLogin || !check) {
+      return;
+    }
+
+    UserStore.requestLogin(replaceBlank(phone), pwd, (_success: boolean) => {
+      // if (success) {
+      navigation.replace('MainTab');
+      // } else {
+      Toast.show('登录成功');
+      // Toast.show('登陆失败，请检查用户名和密码');
+      // }
+    });
   };
 
   const renderQuickLogin = () => {

@@ -14,6 +14,8 @@ import {observer} from 'mobx-react';
 import FlowList from '../../components/flowList/FlowList.js';
 import ResizeImage from '../../components/ResizeImage';
 import Heart from '../../components/Heart';
+import TitleBar from './components/TitleBar';
+import CategoryList from './components/CategoryList';
 
 const {width: SCREEN_WIDTH} = Dimensions.get('window');
 
@@ -58,8 +60,16 @@ export default observer(() => {
     return <Text style={styles.footerTxt}>没有更多数据</Text>;
   };
 
+  const categoryList = store.categoryList.filter(i => i.isAdd);
+
   return (
     <View style={styles.root}>
+      <TitleBar
+        tab={1}
+        onTabChanged={(tab: number) => {
+          console.log(`tab=${tab}`);
+        }}
+      />
       <FlowList
         style={styles.flatList}
         data={store.homeList}
@@ -73,15 +83,15 @@ export default observer(() => {
         onEndReachedThreshold={0.1}
         onEndReached={loadMoreData}
         ListFooterComponent={<Footer />}
-        // ListHeaderComponent={
-        //   <CategoryList
-        //     categoryList={categoryList}
-        //     allCategoryList={store.categoryList}
-        //     onCategoryChange={(category: Category) => {
-        //       console.log(JSON.stringify(category));
-        //     }}
-        //   />
-        // }
+        ListHeaderComponent={
+          <CategoryList
+            categoryList={categoryList}
+            allCategoryList={store.categoryList}
+            onCategoryChange={(category: Category) => {
+              console.log(JSON.stringify(category));
+            }}
+          />
+        }
       />
     </View>
   );
