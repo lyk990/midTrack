@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useCallback, useEffect} from 'react';
 
 import {
   Text,
@@ -16,11 +16,14 @@ import ResizeImage from '../../components/ResizeImage';
 import Heart from '../../components/Heart';
 import TitleBar from './components/TitleBar';
 import CategoryList from './components/CategoryList';
+import {useNavigation} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
 
 const {width: SCREEN_WIDTH} = Dimensions.get('window');
 
 export default observer(() => {
   const store = useLocalStore(() => new HomeStore());
+  const navigation = useNavigation<StackNavigationProp<any>>();
 
   useEffect(() => {
     store.requestHomeList();
@@ -35,10 +38,15 @@ export default observer(() => {
   const loadMoreData = () => {
     store.requestHomeList();
   };
-
+  const onArticlePress = useCallback(
+    (article: ArticleSimple) => () => {
+      navigation.push('ArticleDetail', {id: article.id});
+    },
+    [],
+  );
   const renderItem = ({item}: {item: ArticleSimple}) => {
     return (
-      <TouchableOpacity style={styles.item} onPress={() => {}}>
+      <TouchableOpacity style={styles.item} onPress={onArticlePress(item)}>
         <ResizeImage uri={item.image} />
         <Text style={styles.titleTxt}>{item.title}</Text>
         <View style={styles.nameLayout}>
@@ -70,6 +78,7 @@ export default observer(() => {
           console.log(`tab=${tab}`);
         }}
       />
+      
       <FlowList
         style={styles.flatList}
         data={store.homeList}
