@@ -1,12 +1,12 @@
-import React, {useCallback, useEffect} from 'react';
-
+import React, {useEffect, useCallback} from 'react';
 import {
+  View,
   Text,
   StyleSheet,
-  View,
   Dimensions,
   Image,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
 import {useLocalStore} from 'mobx-react';
 import HomeStore from './HomeStore';
@@ -16,19 +16,70 @@ import ResizeImage from '../../components/ResizeImage';
 import Heart from '../../components/Heart';
 import TitleBar from './components/TitleBar';
 import CategoryList from './components/CategoryList';
+import {save} from '../../utils/Storage';
+
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
+import {
+  checkUpdate,
+  downloadUpdate,
+  switchVersion,
+  isFirstTime,
+  isRolledBack,
+  markSuccess,
+  switchVersionLater,
+} from 'react-native-update';
+
+import _updateConfig from '../../../update.json';
+const {appKey} = _updateConfig[Platform.OS];
 
 const {width: SCREEN_WIDTH} = Dimensions.get('window');
 
 export default observer(() => {
   const store = useLocalStore(() => new HomeStore());
+
   const navigation = useNavigation<StackNavigationProp<any>>();
 
   useEffect(() => {
     store.requestHomeList();
     store.getCategoryList();
+
+    checkPatch();
+    // 每次更新首次启动时,isFirstTime为true
+    if (isFirstTime) {
+      markSuccess();
+      // 补丁成功，上报服务器信息
+      // 补丁安装成功率：99.5% ~ 99.7%
+    } else if (isRolledBack) {
+      // 补丁回滚，上报服务器信息
+    }
   }, []);
+
+  // 检查补丁更新
+  const checkPatch = async () => {
+    const info: any = await checkUpdate(appKey);
+    const {update, name, description, metaInfo} = info;
+    const metaJson = JSON.parse(metaInfo);
+    save('patchVersion', name);
+    const {forceUpdate} = metaJson;
+    if (forceUpdate) {
+      // 弹窗提示用户
+    } else {
+      // 不弹窗默默操作
+    }
+    if (update) {
+      const hash = await downloadUpdate(info, {
+        onDownloadProgress: ({received, total}) => {},
+      });
+      if (hash) {
+        if (forceUpdate) {
+          switchVersion(hash);
+        } else {
+          switchVersionLater(hash);
+        }
+      }
+    }
+  };
 
   const refreshNewData = () => {
     store.resetPage();
@@ -38,13 +89,15 @@ export default observer(() => {
   const loadMoreData = () => {
     store.requestHomeList();
   };
+
   const onArticlePress = useCallback(
     (article: ArticleSimple) => () => {
       navigation.push('ArticleDetail', {id: article.id});
     },
     [],
   );
-  const renderItem = ({item}: {item: ArticleSimple}) => {
+
+  const renderItem = ({item}: {item: ArticleSimple; index: number}) => {
     return (
       <TouchableOpacity style={styles.item} onPress={onArticlePress(item)}>
         <ResizeImage uri={item.image} />
@@ -69,7 +122,6 @@ export default observer(() => {
   };
 
   const categoryList = store.categoryList.filter(i => i.isAdd);
-
   return (
     <View style={styles.root}>
       <TitleBar
@@ -78,11 +130,10 @@ export default observer(() => {
           console.log(`tab=${tab}`);
         }}
       />
-      
       <FlowList
         style={styles.flatList}
         data={store.homeList}
-        keyExtractor={(item: ArticleSimple) => `${item.id}`}
+        keyExtrator={(item: ArticleSimple) => `${item.id}`}
         extraData={[store.refreshing]}
         contentContainerStyle={styles.container}
         renderItem={renderItem}
@@ -105,6 +156,7 @@ export default observer(() => {
     </View>
   );
 });
+
 const styles = StyleSheet.create({
   root: {
     width: '100%',
